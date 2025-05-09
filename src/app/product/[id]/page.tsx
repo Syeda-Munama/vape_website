@@ -268,8 +268,6 @@ import vapekit2 from "@/app/public/products/geek_vape.png"
 import eliquid2 from "@/app/public/products/DinnerLady-Salts-DESSERTS-Lemon-Tart.webp"
 
 
-import { copyFileSync } from "node:fs";
-
 
 const allProducts = [
   {
@@ -393,7 +391,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.image,
+        image: product.image.src,
         quantity: quantity,
         brand: product.brand,
       };

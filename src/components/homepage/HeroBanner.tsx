@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import banner_green from "@/app/public/banner/banner-green.webp";
 import banner_purple from "@/app/public/banner/banner-purple.webp";
 import banner_orange from "@/app/public/banner/banner-orange.webp";
