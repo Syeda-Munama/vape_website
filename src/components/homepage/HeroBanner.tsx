@@ -1,84 +1,183 @@
-import Image from "next/image";
-import banner_green from "@/app/public/banner/banner-green.webp";
-import banner_purple from "@/app/public/banner/banner-purple.webp";
-import banner_orange from "@/app/public/banner/banner-orange.webp";
-import vape_bg from "@/app/public/bg-pic.png"
+
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+
+import banner_green from "@/app/public/banner/banner-green.webp"
+import banner_purple from "@/app/public/banner/banner-purple.webp"
+import banner_orange from "@/app/public/banner/banner-orange.webp"
+import web1 from "@/app/public/banner/web1.jpeg"
+import web2 from "@/app/public/banner/web2.jpeg"
+import web3 from "@/app/public/banner/web3.jpeg"
+import web4 from "@/app/public/banner/web4.jpeg"
+import eliuid from "@/app/public/Category/E-liquid_Mentho.webp"
+import vapekit from "@/app/public/Category/vape-kits.jpg"
+import disposable from "@/app/public/Category/disposable-vape-kit.webp"
+import coil  from "@/app/public/Category/smok-nexm-coil.png"
+import pod from "@/app/public/Category/Pod.webp"
+import nicpouch from "@/app/public/Category/StrawberryIce_velo.webp"
+import Link from "next/link"
 
 export default function HeroBanner() {
+  const banners = [
+    { src: web1, alt: "Mix and Match promotion" },
+    { src: web2, alt: "2 for £8.99 promotion" },
+    { src: web3, alt: "Mix and Match promotion" },
+    { src: web4, alt: "Vape products" },
+  ]
+
+  const [currentBanner, setCurrentBanner] = useState(0)
+
+  const nextBanner = useCallback(() => {
+    setCurrentBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
+  }, [banners.length])
+
+  const prevBanner = useCallback(() => {
+    setCurrentBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1))
+  }, [banners.length])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextBanner()
+    }, 3000)
+
+    return () => clearInterval(interval)
+  }, [nextBanner])
+
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gray-100 py-8">
-        <div className="container mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between">
-          <div className="md:w-1/2 mb-8 md:mb-0">
-            <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight font-integral">
-              FIND
-              <br />
-              EVERYTHING
-              <br />
-              FOR VAPING
-            </h1>
-            <p className="mt-4 max-w-md text-gray-700 font-satoshi font-semibold">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incidunt ut labore et
-              dolore magna aliqua
-            </p>
-          </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-[380px] h-[480px] animate-float transition-transform  ease-in-out hover:scale-105">
-  <Image
-    src={vape_bg}
-    alt="Vape products"
-    fill
-    className="object-contain rounded-lg"
-    priority
-  />
+      {/* Mobile Category Circles */}
+<div className="md:hidden w-full overflow-x-auto py-4 px-2 bg-white no-scrollbar">
+  <div className="flex space-x-4 min-w-max px-2 font-satoshi">
+    {[
+      { name: "E-liquids", href: "/category/e-liquid", icon: eliuid },
+      { name: "Vape Kits", href: "/category/vape-kits", icon: vapekit },
+      { name: "Disposables", href: "/category/disposable", icon: disposable },
+      { name: "Coils", href: "/category/coils", icon: coil },
+      { name: "Pods", href: "/category/pod", icon: pod },
+      { name: "Nic Pouches", href: "/category/nic-pouches", icon: nicpouch },
+    ].map((item, index) => (
+      <Link key={index} href={item.href} className="flex flex-col items-center">
+        <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-200 mb-1 bg-gray-100 flex items-center justify-center">
+          <Image
+            src={item.icon}
+            alt={item.name}
+            width={60}
+            height={60}
+            className="object-cover"
+          />
+        </div>
+        <span className="text-xs text-center font-medium">{item.name}</span>
+      </Link>
+    ))}
+  </div>
 </div>
 
+      {/* Banner Slider Section */}
+
+      <section className="relative">
+  <div className="relative w-full">
+    {banners.map((banner, index) => (
+      <div
+        key={index}
+        className={`transition-opacity duration-500 ${
+          currentBanner === index ? "block" : "hidden"
+        }`}
+      >
+        <Image
+          src={banner.src}
+          alt={banner.alt}
+          width={1600}
+          height={795}
+          className="object-cover w-full h-full"
+          priority
+        />
+      </div>
+    ))}
 
 
+
+          {/* Navigation Arrows */}
+          <button
+            onClick={prevBanner}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 z-10 transition-colors"
+            aria-label="Previous banner"
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <button
+            onClick={nextBanner}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 z-10 transition-colors"
+            aria-label="Next banner"
+          >
+            <ChevronRight size={24} />
+          </button>
+
+          {/* Dots Indicator */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+            {banners.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentBanner(index)}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  currentBanner === index ? "bg-white" : "bg-white/50"
+                }`}
+                aria-label={`Go to banner ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>
 
       {/* Promotional Banners */}
-      {/* Promotional Banners */}
-<section className="py-8">
-  <div className="container mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-    {/* Banner 1 */}
-    <div className="relative rounded-lg overflow-hidden w-full" style={{ aspectRatio: "600 / 230" }}>
-      <Image
-        src={banner_green}
-        alt="Mix and Match promotion"
-        fill
-        className="object-cover rounded-lg"
-        priority
-      />
-    </div>
+      <section className="py-8">
+        <div className="container mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Banner 1 */}
+          <div
+            className="relative rounded-lg overflow-hidden w-full"
+            style={{ aspectRatio: "600 / 230" }}
+          >
+            <Image
+              src={banner_green}
+              alt="Mix and Match promotion"
+              fill
+              className="object-cover rounded-lg"
+              priority
+            />
+          </div>
 
-    {/* Banner 2 */}
-    <div className="relative rounded-lg overflow-hidden w-full" style={{ aspectRatio: "600 / 230" }}>
-      <Image
-        src={banner_purple}
-        alt="2 for £8.99 promotion"
-        fill
-        className="object-cover rounded-lg"
-        priority
-      />
-    </div>
+          {/* Banner 2 */}
+          <div
+            className="relative rounded-lg overflow-hidden w-full"
+            style={{ aspectRatio: "600 / 230" }}
+          >
+            <Image
+              src={banner_purple}
+              alt="2 for £8.99 promotion"
+              fill
+              className="object-cover rounded-lg"
+              priority
+            />
+          </div>
 
-    {/* Banner 3 */}
-    <div className="relative rounded-lg overflow-hidden w-full" style={{ aspectRatio: "600 / 230" }}>
-      <Image
-        src={banner_orange}
-        alt="Mix and Match promotion"
-        fill
-        className="object-cover rounded-lg"
-        priority
-      />
-    </div>
-  </div>
-</section>
-
+          {/* Banner 3 */}
+          <div
+            className="relative rounded-lg overflow-hidden w-full"
+            style={{ aspectRatio: "600 / 230" }}
+          >
+            <Image
+              src={banner_orange}
+              alt="Mix and Match promotion"
+              fill
+              className="object-cover rounded-lg"
+              priority
+            />
+          </div>
+        </div>
+      </section>
 
       {/* Vaping World Section */}
       <section className="py-12">
@@ -93,5 +192,6 @@ export default function HeroBanner() {
         </div>
       </section>
     </main>
-  );
+  )
 }
+

@@ -98,7 +98,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
   );
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 font-satoshi font-semibold">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4 flex-wrap">
         <Link href="/" className="hover:text-foreground transition-colors">
@@ -110,7 +110,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
 
       {/* Title + Sorting */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-        <h1 className="text-2xl font-bold capitalize">
+        <h1 className="text-2xl font-bold capitalize font-integral">
           {params.category.replace("-", " ")}
         </h1>
         <div className="flex items-center gap-2 text-sm flex-wrap">
@@ -179,15 +179,15 @@ function ProductCard({ product }: { product: any }) {
           />
         </div>
         <div className="p-4">
-          <h3 className="font-medium text-sm sm:text-base line-clamp-2">
+          <h3 className="font-medium text-sm sm:text-base line-clamp-2 font-satoshi">
             {product.name}
           </h3>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="font-semibold text-base sm:text-lg">
+            <span className="font-bold text-base sm:text-lg font-satoshi">
               £{product.price.toFixed(2)}
             </span>
             {product.originalPrice && (
-              <span className="text-muted-foreground text-sm line-through">
+              <span className="text-muted-foreground text-sm line-through font-satoshi font-semibold ">
                 £{product.originalPrice.toFixed(2)}
               </span>
             )}

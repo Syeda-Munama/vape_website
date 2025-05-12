@@ -42,7 +42,7 @@ export default function FeaturedBrands() {
             alt={brand.name}
             width={100}
             height={50}
-            className="inline-block"
+            className="inline-block repeat-infinite"
           />
         ))}
       </div>
