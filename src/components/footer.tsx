@@ -169,11 +169,10 @@ export default function Home() {
             {/* Bottom Footer */}
             <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-200">
               <p className="text-gray-600 text-sm text-center md:text-left mb-4 md:mb-0">
-                Shop.co © 2000-2023. All Rights Reserved
+                VapingWorld © 2000-2023. All Rights Reserved
               </p>
               <div className="flex gap-3 justify-center md:justify-start">
-                <img src="/placeholder.svg?height=30&width=50" alt="Visa" className="h-8" />
-                <img src="/placeholder.svg?height=30&width=50" alt="PayPal" className="h-8" />
+               
               </div>
             </div>
           </div>

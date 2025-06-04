@@ -52,11 +52,11 @@ export default function HeroBanner() {
 <div className="md:hidden w-full overflow-x-auto py-4 px-2 bg-white no-scrollbar">
   <div className="flex space-x-4 min-w-max px-2 font-satoshi">
     {[
-      { name: "E-liquids", href: "/category/e-liquid", icon: eliuid },
+      { name: "E-liquids", href: "/category/eliquids", icon: eliuid },
       { name: "Vape Kits", href: "/category/vape-kits", icon: vapekit },
-      { name: "Disposables", href: "/category/disposable", icon: disposable },
+      { name: "Disposables", href: "/category/disposables", icon: disposable },
       { name: "Coils", href: "/category/coils", icon: coil },
-      { name: "Pods", href: "/category/pod", icon: pod },
+      { name: "Pods", href: "/category/pods", icon: pod },
       { name: "Nic Pouches", href: "/category/nic-pouches", icon: nicpouch },
     ].map((item, index) => (
       <Link key={index} href={item.href} className="flex flex-col items-center">
@@ -194,4 +194,5 @@ export default function HeroBanner() {
     </main>
   )
 }
+
 

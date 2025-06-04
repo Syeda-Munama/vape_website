@@ -98,7 +98,9 @@ export default function CartPage() {
               <span>Shipping</span>
               <span className="text-muted-foreground">Calculated at checkout</span>
             </div>
+            <Link href="/checkout">
             <Button className="w-full">Checkout</Button>
+            </Link>
           </div>
         </div>
       </div>
