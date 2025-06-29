@@ -802,7 +802,7 @@ export default function Navbar() {
     <>
       {/* Top Banner */}
       <div className="relative flex items-center justify-center w-full h-10 bg-black text-white text-[14px] font-satoshi">
-        Get 20% on your first order.  
+        Free Delivery on orders over £35.  
         <Link href="/auth/sign-up" className="font-semibold">
           <span className="underline cursor-pointer">Sign up now!</span>
         </Link>

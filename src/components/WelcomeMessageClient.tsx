@@ -27,7 +27,7 @@ export default function WelcomeMessage() {
 
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 font-satoshi">
         <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -53,7 +53,7 @@ export default function WelcomeMessage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 font-satoshi">
       <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -70,12 +70,12 @@ export default function WelcomeMessage() {
                   My Account
                 </Link>
               </Button>
-              <Button asChild>
+              {/* <Button asChild>
                 <Link href="/category/new-arrivals">
                   <ShoppingBag className="h-4 w-4 mr-2" />
                   Shop Now
                 </Link>
-              </Button>
+              </Button> */}
             </div>
           </div>
         </CardContent>

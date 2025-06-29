@@ -11,22 +11,22 @@ const categories = [
   {
     title: 'VAPE KITS',
     image: img1,
-    href: '/vape-kits',
+    href: '/category/vape-kits',
   },
   {
     title: 'E-LIQUIDS',
     image: img3,
-    href: '/e-liquids',
+    href: '/category/eliquids',
   },
   {
     title: 'DISPOSABLES',
     image: img2,
-    href: '/disposables',
+    href: '/category/disposables',
   },
   {
     title: 'PODS',
     image: img4,
-    href: '/pods',
+    href: '/category/pods',
   },
 ];
 

@@ -5,7 +5,8 @@ const nextConfig = {
   },
     images: {
     domains: [
-      "lknodatkjlzfqcqveheb.supabase.co",
+      // "lknodatkjlzfqcqveheb.supabase.co",
+      "uesfuchngfwtgitvmtkg.supabase.co",
     ],
   },
 };
