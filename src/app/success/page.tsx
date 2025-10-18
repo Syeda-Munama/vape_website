@@ -1,7 +1,10 @@
-import React from 'react'
+import React from "react";
 
-export const success = () => {
+export default function SuccessPage() {
   return (
-    <div>Success</div>
-  )
+    <div className="p-6">
+      <h1 className="text-2xl font-bold">Successful Orders</h1>
+      <p>This page shows all successful orders.</p>
+    </div>
+  );
 }
