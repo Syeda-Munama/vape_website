@@ -85,6 +85,7 @@ import favicon from "@/app/public/lOGO.png"
 import { AuthProvider } from "@/context/AuthContext"
 import { Toaster } from "@/components/ui/toaster"
 import Navbar from "@/components/header"
+import AgeVerification from "@/components/AgeVerification"
 
 
 export const metadata: Metadata = {
@@ -135,6 +136,7 @@ export default function RootLayout({
       <body>
          <AuthProvider>
           <CartProvider>
+            <AgeVerification/>
             <Navbar />
             {children}
             <Footer />
