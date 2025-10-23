@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -66,35 +62,34 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Satoshi', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  .font-integral {
+    font-family: 'Integral CF', sans-serif;
+  }
+  .font-satoshi {
+    font-family: 'Satoshi', sans-serif;
   }
 }
+
 @font-face {
   font-family: 'Satoshi';
-  src: url('./fonts/Satoshi-Light.woff') format('woff');
-       /* url('/fonts/Satoshi-Regular.woff') format('woff'); */
+  src: url('/fonts/Satoshi-Light.woff') format('woff');
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 @font-face {
   font-family: 'Integral CF';
-  src: url('./fonts/IntegralCF-ExtraBold.woff2') format('woff2');
+  src: url('/fonts/IntegralCF-ExtraBold.woff2') format('woff2');
   font-weight: 800;
   font-style: normal;
-}
-
-.font-integral {
-  font-family: 'Integral CF',sans-serif;
-}
-.font-satoshi {
-  font-family: 'Satoshi', sans-serif;
+  font-display: swap;
 }
 
 @keyframes scroll {

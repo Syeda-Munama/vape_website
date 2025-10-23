@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Facebook, Github, Instagram, Twitter, Truck } from "lucide-react"
+import { Facebook, Github, Instagram, Twitter, Truck, MapPin} from "lucide-react"
 
 export default function Home() {
   return (
@@ -107,8 +107,11 @@ export default function Home() {
               <Link href="/" className="text-2xl font-bold mb-4 block font-integral text-left">
                 VAPING WORLD
               </Link>
-              <p className="text-gray-600 mb-4 text-left">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempo
+              <p className="flex items-center text-gray-600 mb-4 text-left">
+                <MapPin className="mr-2"/>Mediself Limited
+Unit 1 Springfield Industrial Estate,
+Preston,
+PR1 7JD.
               </p>
               <div className="flex justify-start gap-4">
                 <Link href="#" className="text-gray-600 hover:text-black">

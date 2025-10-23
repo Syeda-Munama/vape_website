@@ -2,12 +2,12 @@
 
 import Image from 'next/image';
 import ske from "@/app/public/brands/ske.webp"
-import doozy from "@/app/public/brands/doozy.jpg"
+import doozy from "@/app/public/brands/doozy.webp"
 import hayati from "@/app/public/brands/hayati.webp"
-import aspire from "@/app/public/brands/Aspire.png"
+import aspire from "@/app/public/brands/Aspire.webp"
 import nasty from "@/app/public/brands/nasty.webp"
-import velo from "@/app/public/brands/velo.jpg"
-import elfbar from "@/app/public/brands/elfbar.png"
+import velo from "@/app/public/brands/velo.webp"
+import elfbar from "@/app/public/brands/elfbar.webp"
 
 const brands = [
   { name: 'SKE Crystal Bar', src: ske },

@@ -183,24 +183,134 @@
 //   )
 // }
 // app/page.tsx (or wherever your homepage is rendered)
-import CategoryCards from "@/components/homepage/Category"
-import FeaturedProducts from "@/components/homepage/Featured"
-import FeaturedBrands from "@/components/homepage/FeaturedBrands"
-import FlavorExplorer from "@/components/homepage/Flaour"
-import HeroBanner from "@/components/homepage/HeroBanner"
-import WelcomeMessage from "@/components/WelcomeMessageClient"
+// import CategoryCards from "@/components/homepage/Category"
+// import FeaturedProducts from "@/components/homepage/Featured"
+// import FeaturedBrands from "@/components/homepage/FeaturedBrands"
+// import FlavorExplorer from "@/components/homepage/Flaour"
+// import HeroBanner from "@/components/homepage/HeroBanner"
+// import WelcomeMessage from "@/components/WelcomeMessageClient"
 
 
-export default function HomePage() {
+// export default function HomePage() {
+//   return (
+//     <>
+      
+//       <WelcomeMessage />
+//       <HeroBanner />
+//       <FeaturedBrands />
+//       <CategoryCards />
+//       <FeaturedProducts />
+//       <FlavorExplorer />
+//     </>
+//   )
+// }
+
+// import dynamic from "next/dynamic";
+// import { Suspense } from "react";
+// import CategoryCards from "@/components/homepage/Category";
+// import FeaturedBrands from "@/components/homepage/FeaturedBrands";
+// import FlavorExplorer from "@/components/homepage/Flaour";
+// import HeroBanner from "@/components/homepage/HeroBanner";
+// import WelcomeMessage from "@/components/WelcomeMessageClient";
+// import { createClient } from "@/utils/supabase/server";
+
+// export async function getServerSideProps(context: any) {
+//   const supabase = createClient();
+//   const { data: user } = await (await supabase).auth.getUser();
+//   return {props: {user}}
+// }
+
+// // Dynamically import FeaturedProducts with Suspense
+// const FeaturedProducts = dynamic(() => import("@/components/homepage/Featured"), {
+//   ssr: true, // Enable server-side rendering
+//   loading: () => (
+//     <div className="container mx-auto px-4 py-12">
+//       <div className="flex items-center justify-center gap-4 mb-10">
+//         <div className="flex-grow border-t border-black/40"></div>
+//         <h2 className="text-3xl font-bold uppercase tracking-wider font-integral">Featured</h2>
+//         <div className="flex-grow border-t border-black/40"></div>
+//       </div>
+//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+//         {[...Array(4)].map((_, idx) => (
+//           <div
+//             key={idx}
+//             className="bg-white rounded-3xl border border-gray-400 h-72 animate-pulse"
+//           ></div>
+//         ))}
+//       </div>
+//     </div>
+//   ),
+// });
+
+// export default function HomePage({user}: any) {
+//   return (
+//     <>
+//       <WelcomeMessage user={user} />
+//       <HeroBanner />
+//       <FeaturedBrands />
+//       <CategoryCards />
+//       <Suspense fallback={<div>Loading Featured Products...</div>}>
+//         <FeaturedProducts />
+//       </Suspense>
+//       <FlavorExplorer />
+//     </>
+//   );
+// }
+// src/app/page.tsx
+import { Suspense } from "react";
+import dynamic from "next/dynamic";
+import { createClient } from "@/utils/supabase/server";
+import WelcomeMessage from "@/components/WelcomeMessageClient";
+import CategoryCards from "@/components/homepage/Category";
+import FeaturedBrands from "@/components/homepage/FeaturedBrands";
+import FlavorExplorer from "@/components/homepage/Flaour";
+import HeroBanner from "@/components/homepage/HeroBanner";
+
+// Dynamically import FeaturedProducts
+const FeaturedProducts = dynamic(() => import("@/components/homepage/Featured"), {
+  ssr: true,
+  loading: () => (
+    <div className="container mx-auto px-4 py-12">
+      <div className="flex items-center justify-center gap-4 mb-10">
+        <div className="flex-grow border-t border-black/40"></div>
+        <h2 className="text-3xl font-bold uppercase tracking-wider font-integral">Featured</h2>
+        <div className="flex-grow border-t border-black/40"></div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, idx) => (
+          <div
+            key={idx}
+            className="bg-white rounded-3xl border border-gray-400 h-72 animate-pulse"
+          ></div>
+        ))}
+      </div>
+    </div>
+  ),
+});
+
+export default async function HomePage() {
+  // Fetch user data server-side
+  const supabase = createClient();
+  const { data: { user } } = await (await supabase).auth.getUser();
+
   return (
     <>
-      
-      <WelcomeMessage />
+      <Suspense
+        fallback={
+          <div className="container mx-auto px-4 py-6">
+            <div className="animate-pulse bg-gray-200 h-20 rounded-lg"></div>
+          </div>
+        }
+      >
+        <WelcomeMessage user={user} />
+      </Suspense>
       <HeroBanner />
       <FeaturedBrands />
       <CategoryCards />
-      <FeaturedProducts />
+      <Suspense fallback={<div>Loading Featured Products...</div>}>
+        <FeaturedProducts />
+      </Suspense>
       <FlavorExplorer />
     </>
-  )
+  );
 }
