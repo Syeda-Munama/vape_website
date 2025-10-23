@@ -157,7 +157,7 @@ import favicon from "@/app/public/lOGO.webp";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
 import Navbar from "@/components/header";
-import AgeVerification from "@/components/AgeVerification";
+// import AgeVerification from "@/components/AgeVerification";
 
 export const metadata: Metadata = {
   title: "Vaping World | UK's Premier Online Vape Shop",
@@ -222,7 +222,7 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <CartProvider>
-            <AgeVerification />
+            {/* <AgeVerification /> */}
             <Navbar />
             {children}
             <Footer />
