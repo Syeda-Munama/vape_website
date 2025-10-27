@@ -91,7 +91,7 @@ export default function Navbar() {
   const navItems = [
     { name: "E-liquid", href: "/category/eliquids" },
     { name: "Vape Kits", href: "/category/vape-kits" },
-    { name: "Disposables", href: "/category/disposables" },
+    // { name: "Disposables", href: "/category/disposables" },
     { name: "Coil", href: "/category/coils" },
     { name: "Pods", href: "/category/pods" },
     { name: "Nic Pouches", href: "/category/nic-pouches" },
