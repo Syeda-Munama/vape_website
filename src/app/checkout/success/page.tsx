@@ -1,159 +1,4 @@
 
-// "use client"
-
-// import { useEffect, useState } from "react"
-// import Link from "next/link"
-// import { createClient } from "@/utils/supabase/client"
-// import { useCart } from "@/context/CartContext"
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-// import { Button } from "@/components/ui/button"
-// import { CheckCircle, Loader2, Package } from "lucide-react"
-
-// type Order = {
-//   id: string
-//   email: string
-//   first_name: string
-//   last_name: string
-//   total: number
-//   status: string
-//   created_at: string
-// }
-
-// export default function CheckoutSuccessPage() {
-//   const supabase = createClient()
-//   const { clearCart } = useCart()
-//   const [loading, setLoading] = useState(true)
-//   const [order, setOrder] = useState<Order | null>(null)
-
-//   useEffect(() => {
-//     const molliePaymentId = typeof window !== "undefined" ? sessionStorage.getItem("mollie_payment_id") : null
-//     const pendingOrderId = typeof window !== "undefined" ? sessionStorage.getItem("pending_order_id") : null
-
-//     const fetchOrder = async () => {
-//       try {
-//         // Try pending order id first (fast path)
-//         if (pendingOrderId) {
-//           const { data, error } = await supabase.from("orders").select("*").eq("id", pendingOrderId).single()
-//           if (!error && data) {
-//             setOrder(data as unknown as Order)
-//             clearCart()
-//             return
-//           }
-//         }
-
-//         // Fallback: lookup by Mollie payment id saved in stripe_session_id
-//         if (molliePaymentId) {
-//           const { data, error } = await supabase
-//             .from("orders")
-//             .select("*")
-//             .eq("stripe_session_id", molliePaymentId)
-//             .order("created_at", { ascending: false })
-//             .limit(1)
-//             .single()
-
-//           if (!error && data) {
-//             setOrder(data as unknown as Order)
-//             clearCart()
-//             return
-//           }
-//         }
-
-//         // Fallback: show generic success
-//         setOrder(null)
-//       } catch (e) {
-//         console.error("Success page fetch error:", e)
-//       } finally {
-//         setLoading(false)
-//         // Clean up session markers
-//         if (typeof window !== "undefined") {
-//           sessionStorage.removeItem("mollie_payment_id")
-//           sessionStorage.removeItem("pending_order_id")
-//           sessionStorage.removeItem("orderDraft")
-//         }
-//       }
-//     }
-
-//     fetchOrder()
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, [])
-
-//   if (loading) {
-//     return (
-//       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-//         <div className="text-center">
-//           <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto" />
-//           <p className="mt-4 text-gray-600">Processing your order...</p>
-//         </div>
-//       </div>
-//     )
-//   }
-
-//   if (!order) {
-//     return (
-//       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-//         <Card className="max-w-md w-full mx-4">
-//           <CardContent className="text-center py-8">
-//             <CheckCircle className="h-10 w-10 text-green-600 mx-auto mb-3" />
-//             <h1 className="text-xl font-bold text-gray-900 mb-2">Thank you!</h1>
-//             <p className="text-gray-600 mb-6">Your payment was received. Your order will appear shortly.</p>
-//             <Button asChild>
-//               <Link href="/">Continue Shopping</Link>
-//             </Button>
-//           </CardContent>
-//         </Card>
-//       </div>
-//     )
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 py-12">
-//       <div className="container mx-auto px-4 max-w-2xl">
-//         <div className="text-center mb-8">
-//           <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-//             <CheckCircle className="h-8 w-8 text-green-600" />
-//           </div>
-//           <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>
-//           <p className="text-gray-600">Thanks for your purchase, {order.first_name}!</p>
-//         </div>
-
-//         <Card className="mb-6">
-//           <CardHeader>
-//             <CardTitle className="flex items-center gap-2">
-//               <Package className="h-5 w-5" />
-//               Order Details
-//             </CardTitle>
-//           </CardHeader>
-//           <CardContent className="grid grid-cols-2 gap-4 text-sm">
-//             <div>
-//               <p className="text-gray-600">Order Number</p>
-//               <p className="font-medium">#{order.id.slice(-8).toUpperCase()}</p>
-//             </div>
-//             <div>
-//               <p className="text-gray-600">Order Date</p>
-//               <p className="font-medium">{new Date(order.created_at).toLocaleDateString()}</p>
-//             </div>
-//             <div>
-//               <p className="text-gray-600">Total Amount</p>
-//               <p className="font-medium">£{Number(order.total).toFixed(2)}</p>
-//             </div>
-//             {/* <div>
-//               <p className="text-gray-600">Status</p>
-//               <p className="font-medium capitalize">{order.status}</p>
-//             </div> */}
-//           </CardContent>
-//         </Card>
-
-//         <div className="flex flex-col sm:flex-row gap-4">
-//           <Button asChild className="flex-1">
-//             <Link href="/">Continue Shopping</Link>
-//           </Button>
-         
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
 
 // "use client";
 
@@ -534,13 +379,13 @@
 // }
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useCart } from "@/context/CartContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Loader2, Package, ArrowRight, RefreshCw } from "lucide-react";
+import { CheckCircle, Loader2, Package } from "lucide-react";
 
 type Order = {
   id: string;
@@ -556,128 +401,80 @@ type Order = {
 export default function CheckoutSuccessPage() {
   const supabase = createClient();
   const { clearCart } = useCart();
+  const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState<Order | null>(null);
-  const [error, setError] = useState(false);
-  const pollInterval = useRef<NodeJS.Timeout | null>(null);
-  const attempts = useRef(0);
-  const maxAttempts = 15; // 15 × 2s = 30 seconds max
-
-  const molliePaymentId = typeof window !== "undefined" ? sessionStorage.getItem("molliePaymentId") : null;
-
-  const fetchOrder = async () => {
-    if (!molliePaymentId) {
-      setError(true);
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .eq("payment_id", molliePaymentId)
-        .single();
-
-      if (data) {
-        setOrder(data as Order);
-        clearCart();
-        if (pollInterval.current) clearInterval(pollInterval.current);
-      } else if (error && error.code !== "PGRST116") {
-        // PGRST116 = no rows
-        console.error("DB error:", error);
-        setError(true);
-      }
-    } catch (e) {
-      console.error("Fetch error:", e);
-      setError(true);
-    }
-  };
 
   useEffect(() => {
-    if (!molliePaymentId) {
-      setError(true);
-      return;
-    }
+    const molliePaymentId = typeof window !== "undefined"
+      ? sessionStorage.getItem("molliePaymentId")
+      : null;
 
-    // Start polling
-    pollInterval.current = setInterval(() => {
-      attempts.current += 1;
+    const fetchOrder = async () => {
+      try {
+        if (!molliePaymentId) {
+          setOrder(null);
+          return;
+        }
 
-      if (attempts.current >= maxAttempts) {
-        clearInterval(pollInterval.current!);
-        setError(true);
-        return;
+        const { data, error } = await supabase
+          .from("orders")
+          .select("id, email, first_name, last_name, total, status, created_at, payment_id")
+          .eq("payment_id", molliePaymentId)
+          .single();
+
+        if (!error && data) {
+          setOrder(data);
+          clearCart();
+        } else {
+          setOrder(null);
+        }
+      } catch (e) {
+        console.error("Success page error:", e);
+        setOrder(null);
+      } finally {
+        setLoading(false);
+        // Clean up session
+        // sessionStorage.removeItem("molliePaymentId");
+        // sessionStorage.removeItem("tempId");
       }
-
-      fetchOrder();
-    }, 2000); // Every 2 seconds
-
-    // Initial fetch
-    fetchOrder();
-
-    return () => {
-      if (pollInterval.current) clearInterval(pollInterval.current);
-      sessionStorage.removeItem("molliePaymentId");
-      sessionStorage.removeItem("tempId");
     };
-  }, [molliePaymentId, supabase, clearCart]);
 
-  // Show error after timeout
-  if (error) {
+    fetchOrder();
+  }, [supabase, clearCart]);
+
+  // Loading
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="text-center py-10">
-            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <RefreshCw className="h-8 w-8 text-red-600" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h1>
-            <p className="text-gray-600 mb-4">
-              We couldn't find your order. It may take a moment to process.
-            </p>
-            <p className="text-sm text-gray-500 mb-6">
-              Please check your email or refresh in a few minutes.
-            </p>
-            <div className="space-y-3">
-              <Button asChild className="w-full">
-                <Link href="/account/orders">Check Orders</Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/">Continue Shopping</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto" />
+          <p className="mt-4 text-gray-600">Processing your order...</p>
+        </div>
       </div>
     );
   }
 
-  // Show loading + polling forever until order found
+  // Fallback: Payment received, order not in DB yet
   if (!order) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="text-center py-10">
-            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 animate-pulse">
-              <RefreshCw className="h-8 w-8 text-blue-600 animate-spin" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Processing Your Order</h1>
-            <p className="text-gray-600 mb-2">
-              Confirming payment with Mollie...
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="max-w-md w-full mx-4">
+          <CardContent className="text-center py-8">
+            <CheckCircle className="h-10 w-10 text-green-600 mx-auto mb-3" />
+            <h1 className="text-xl font-bold text-gray-900 mb-2">Thank you!</h1>
+            <p className="text-gray-600 mb-6">
+              Your payment was received. Your order will appear shortly.
             </p>
-            <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Attempt {attempts.current} of {maxAttempts}</span>
-            </div>
-            <p className="text-xs text-gray-400 mt-4">
-              This usually takes 3–10 seconds. Please wait...
-            </p>
+            <Button asChild>
+              <Link href="/">Continue Shopping</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Full order success — only shown when DB has it
+  // Success: Full order details
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 max-w-2xl">
@@ -686,25 +483,20 @@ export default function CheckoutSuccessPage() {
             <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>
-          <p className="text-lg text-gray-700">
-            Thank you, <span className="font-medium">{order.first_name}</span>!
-          </p>
-          <p className="text-sm text-gray-500 mt-1">
-            A confirmation email has been sent to {order.email}
-          </p>
+          <p className="text-gray-600">Thanks for your purchase, {order.first_name}!</p>
         </div>
 
-        <Card className="mb-8">
+        <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
               Order Details
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <CardContent className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <p className="text-gray-600">Order Number</p>
-              <p className="font-mono font-medium">#{order.id.slice(-8).toUpperCase()}</p>
+              <p className="font-medium">#{order.id.slice(-8).toUpperCase()}</p>
             </div>
             <div>
               <p className="text-gray-600">Order Date</p>
@@ -713,39 +505,21 @@ export default function CheckoutSuccessPage() {
                   day: "numeric",
                   month: "short",
                   year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
                 })}
               </p>
             </div>
             <div>
-              <p className="text-gray-600">Total Paid</p>
-              <p className="font-medium text-lg">£{Number(order.total).toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-gray-600">Status</p>
-              <p className="font-medium capitalize text-green-700">{order.status}</p>
+              <p className="text-gray-600">Total Amount</p>
+              <p className="font-medium">£{Number(order.total).toFixed(2)}</p>
             </div>
           </CardContent>
         </Card>
 
         <div className="flex flex-col sm:flex-row gap-4">
           <Button asChild className="flex-1">
-            <Link href="/">
-              Continue Shopping <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="flex-1">
-            <Link href="/account/orders">View Orders</Link>
+            <Link href="/">Continue Shopping</Link>
           </Button>
         </div>
-
-        <p className="text-center text-xs text-gray-500 mt-8">
-          Need help?{" "}
-          <Link href="/contact" className="text-blue-600 hover:underline">
-            Contact support
-          </Link>
-        </p>
       </div>
     </div>
   );
