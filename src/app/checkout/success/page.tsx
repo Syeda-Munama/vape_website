@@ -323,6 +323,215 @@
 //   );
 // }
 
+// "use client";
+
+// import { useEffect, useState, useRef } from "react";
+// import Link from "next/link";
+// import { createClient } from "@/utils/supabase/client";
+// import { useCart } from "@/context/CartContext";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Button } from "@/components/ui/button";
+// import { CheckCircle, Loader2, Package, ArrowRight, RefreshCw } from "lucide-react";
+
+// type Order = {
+//   id: string;
+//   email: string;
+//   first_name: string;
+//   last_name: string;
+//   total: number;
+//   status: string;
+//   created_at: string;
+//   payment_id: string;
+// };
+
+// export default function CheckoutSuccessPage() {
+//   const supabase = createClient();
+//   const { clearCart } = useCart();
+//   const [loading, setLoading] = useState(true);
+//   const [order, setOrder] = useState<Order | null>(null);
+//   const [polling, setPolling] = useState(false);
+//   const pollInterval = useRef<NodeJS.Timeout | null>(null);
+
+//   const molliePaymentId = typeof window !== "undefined" ? sessionStorage.getItem("molliePaymentId") : null;
+
+//   const fetchOrder = async () => {
+//     if (!molliePaymentId) return;
+
+//     try {
+//       const { data, error } = await supabase
+//         .from("orders")
+//         .select("*")
+//         .eq("payment_id", molliePaymentId)
+//         .single();
+
+//       if (!error && data) {
+//         setOrder(data as Order);
+//         clearCart();
+//         setPolling(false);
+//         if (pollInterval.current) clearInterval(pollInterval.current);
+//       }
+//     } catch (e) {
+//       console.error("Polling error:", e);
+//     }
+//   };
+
+//   useEffect(() => {
+//     // Initial fetch
+//     const init = async () => {
+//       if (!molliePaymentId) {
+//         setLoading(false);
+//         return;
+//       }
+
+//       await fetchOrder();
+
+//       // If order not found, start polling
+//       if (!order) {
+//         setPolling(true);
+//         pollInterval.current = setInterval(fetchOrder, 2500); // Every 2.5s
+//       }
+
+//       setLoading(false);
+//     };
+
+//     init();
+
+//     // Cleanup on unmount
+//     return () => {
+//       if (pollInterval.current) clearInterval(pollInterval.current);
+//       // Clean session
+//       sessionStorage.removeItem("molliePaymentId");
+//       sessionStorage.removeItem("tempId");
+//     };
+//   }, [molliePaymentId, supabase, clearCart, order]);
+
+//   // Show initial loading
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+//         <div className="text-center">
+//           <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+//           <p className="text-lg text-gray-700">Finalizing your order...</p>
+//           <p className="text-sm text-gray-500 mt-2">This may take a few seconds</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   // Polling state: show "Processing" with spinner
+//   if (polling && !order) {
+//     return (
+//       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+//         <Card className="max-w-md w-full">
+//           <CardContent className="text-center py-10">
+//             <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 animate-pulse">
+//               <RefreshCw className="h-8 w-8 text-blue-600 animate-spin" />
+//             </div>
+//             <h1 className="text-2xl font-bold text-gray-900 mb-2">Processing Your Order</h1>
+//             <p className="text-gray-600 mb-2">
+//               We're confirming your payment with Mollie...
+//             </p>
+//             <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+//               <Loader2 className="h-4 w-4 animate-spin" />
+//               <span>Checking status...</span>
+//             </div>
+//             <p className="text-xs text-gray-400 mt-4">This usually takes 3–10 seconds</p>
+//           </CardContent>
+//         </Card>
+//       </div>
+//     );
+//   }
+
+//   // Fallback: payment confirmed, but order not in DB yet (rare)
+//   if (!order) {
+//     return (
+//       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+//         <Card className="max-w-md w-full">
+//           <CardContent className="text-center py-10">
+//             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+//               <CheckCircle className="h-8 w-8 text-green-600" />
+//             </div>
+//             <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
+//             <p className="text-gray-600 mb-6">
+//               Your payment was received. We're processing your order.
+//             </p>
+//             <Button asChild className="w-full">
+//               <Link href="/">
+//                 Continue Shopping <ArrowRight className="ml-2 h-4 w-4" />
+//               </Link>
+//             </Button>
+//           </CardContent>
+//         </Card>
+//       </div>
+//     );
+//   }
+
+//   // Full order success
+//   return (
+//     <div className="min-h-screen bg-gray-50 py-12">
+//       <div className="container mx-auto px-4 max-w-2xl">
+//         <div className="text-center mb-8">
+//           <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+//             <CheckCircle className="h-8 w-8 text-green-600" />
+//           </div>
+//           <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>
+//           <p className="text-lg text-gray-700">
+//             Thank you, <span className="font-medium">{order.first_name}</span>!
+//           </p>
+         
+//         </div>
+
+//         <Card className="mb-8">
+//           <CardHeader>
+//             <CardTitle className="flex items-center gap-2">
+//               <Package className="h-5 w-5" />
+//               Order Details
+//             </CardTitle>
+//           </CardHeader>
+//           <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+//             <div>
+//               <p className="text-gray-600">Order Number</p>
+//               <p className="font-mono font-medium">#{order.id.slice(-8).toUpperCase()}</p>
+//             </div>
+//             <div>
+//               <p className="text-gray-600">Order Date</p>
+//               <p className="font-medium">
+//                 {new Date(order.created_at).toLocaleDateString("en-GB", {
+//                   day: "numeric",
+//                   month: "short",
+//                   year: "numeric",
+//                   hour: "2-digit",
+//                   minute: "2-digit",
+//                 })}
+//               </p>
+//             </div>
+//             <div>
+//               <p className="text-gray-600">Total Paid</p>
+//               <p className="font-medium text-lg">£{Number(order.total).toFixed(2)}</p>
+//             </div>
+//             <div>
+//               <p className="text-gray-600">Status</p>
+//               <p className="font-medium capitalize text-green-700">{order.status}</p>
+//             </div>
+//           </CardContent>
+//         </Card>
+
+//         <div className="flex flex-col sm:flex-row gap-4">
+//           <Button asChild className="flex-1">
+//             <Link href="/">
+//               Continue Shopping <ArrowRight className="ml-2 h-4 w-4" />
+//             </Link>
+//           </Button>
+//           <Button asChild variant="outline" className="flex-1">
+//             <Link href="/account/orders">View Orders</Link>
+//           </Button>
+//         </div>
+
+        
+//       </div>
+//     </div>
+//   );
+// }
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -347,15 +556,19 @@ type Order = {
 export default function CheckoutSuccessPage() {
   const supabase = createClient();
   const { clearCart } = useCart();
-  const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState<Order | null>(null);
-  const [polling, setPolling] = useState(false);
+  const [error, setError] = useState(false);
   const pollInterval = useRef<NodeJS.Timeout | null>(null);
+  const attempts = useRef(0);
+  const maxAttempts = 15; // 15 × 2s = 30 seconds max
 
   const molliePaymentId = typeof window !== "undefined" ? sessionStorage.getItem("molliePaymentId") : null;
 
   const fetchOrder = async () => {
-    if (!molliePaymentId) return;
+    if (!molliePaymentId) {
+      setError(true);
+      return;
+    }
 
     try {
       const { data, error } = await supabase
@@ -364,62 +577,82 @@ export default function CheckoutSuccessPage() {
         .eq("payment_id", molliePaymentId)
         .single();
 
-      if (!error && data) {
+      if (data) {
         setOrder(data as Order);
         clearCart();
-        setPolling(false);
         if (pollInterval.current) clearInterval(pollInterval.current);
+      } else if (error && error.code !== "PGRST116") {
+        // PGRST116 = no rows
+        console.error("DB error:", error);
+        setError(true);
       }
     } catch (e) {
-      console.error("Polling error:", e);
+      console.error("Fetch error:", e);
+      setError(true);
     }
   };
 
   useEffect(() => {
-    // Initial fetch
-    const init = async () => {
-      if (!molliePaymentId) {
-        setLoading(false);
+    if (!molliePaymentId) {
+      setError(true);
+      return;
+    }
+
+    // Start polling
+    pollInterval.current = setInterval(() => {
+      attempts.current += 1;
+
+      if (attempts.current >= maxAttempts) {
+        clearInterval(pollInterval.current!);
+        setError(true);
         return;
       }
 
-      await fetchOrder();
+      fetchOrder();
+    }, 2000); // Every 2 seconds
 
-      // If order not found, start polling
-      if (!order) {
-        setPolling(true);
-        pollInterval.current = setInterval(fetchOrder, 2500); // Every 2.5s
-      }
+    // Initial fetch
+    fetchOrder();
 
-      setLoading(false);
-    };
-
-    init();
-
-    // Cleanup on unmount
     return () => {
       if (pollInterval.current) clearInterval(pollInterval.current);
-      // Clean session
       sessionStorage.removeItem("molliePaymentId");
       sessionStorage.removeItem("tempId");
     };
-  }, [molliePaymentId, supabase, clearCart, order]);
+  }, [molliePaymentId, supabase, clearCart]);
 
-  // Show initial loading
-  if (loading) {
+  // Show error after timeout
+  if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-lg text-gray-700">Finalizing your order...</p>
-          <p className="text-sm text-gray-500 mt-2">This may take a few seconds</p>
-        </div>
+        <Card className="max-w-md w-full">
+          <CardContent className="text-center py-10">
+            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <RefreshCw className="h-8 w-8 text-red-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h1>
+            <p className="text-gray-600 mb-4">
+              We couldn't find your order. It may take a moment to process.
+            </p>
+            <p className="text-sm text-gray-500 mb-6">
+              Please check your email or refresh in a few minutes.
+            </p>
+            <div className="space-y-3">
+              <Button asChild className="w-full">
+                <Link href="/account/orders">Check Orders</Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/">Continue Shopping</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // Polling state: show "Processing" with spinner
-  if (polling && !order) {
+  // Show loading + polling forever until order found
+  if (!order) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
@@ -429,44 +662,22 @@ export default function CheckoutSuccessPage() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Processing Your Order</h1>
             <p className="text-gray-600 mb-2">
-              We're confirming your payment with Mollie...
+              Confirming payment with Mollie...
             </p>
             <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
               <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Checking status...</span>
+              <span>Attempt {attempts.current} of {maxAttempts}</span>
             </div>
-            <p className="text-xs text-gray-400 mt-4">This usually takes 3–10 seconds</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Fallback: payment confirmed, but order not in DB yet (rare)
-  if (!order) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="text-center py-10">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle className="h-8 w-8 text-green-600" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
-            <p className="text-gray-600 mb-6">
-              Your payment was received. We're processing your order.
+            <p className="text-xs text-gray-400 mt-4">
+              This usually takes 3–10 seconds. Please wait...
             </p>
-            <Button asChild className="w-full">
-              <Link href="/">
-                Continue Shopping <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Full order success
+  // Full order success — only shown when DB has it
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 max-w-2xl">
@@ -478,7 +689,9 @@ export default function CheckoutSuccessPage() {
           <p className="text-lg text-gray-700">
             Thank you, <span className="font-medium">{order.first_name}</span>!
           </p>
-         
+          <p className="text-sm text-gray-500 mt-1">
+            A confirmation email has been sent to {order.email}
+          </p>
         </div>
 
         <Card className="mb-8">
@@ -527,7 +740,12 @@ export default function CheckoutSuccessPage() {
           </Button>
         </div>
 
-        
+        <p className="text-center text-xs text-gray-500 mt-8">
+          Need help?{" "}
+          <Link href="/contact" className="text-blue-600 hover:underline">
+            Contact support
+          </Link>
+        </p>
       </div>
     </div>
   );
