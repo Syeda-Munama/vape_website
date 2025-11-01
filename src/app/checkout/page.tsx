@@ -1732,7 +1732,7 @@ export default function CheckoutPage() {
                 ) : loading ? (
                   "Processing..."
                 ) : (
-                  `Pay with Card — £${total.toFixed(2)}`
+                  `Pay now — £${total.toFixed(2)}`
                 )}
               </Button>
             </form>
