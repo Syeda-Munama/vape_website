@@ -404,43 +404,83 @@ export default function CheckoutSuccessPage() {
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState<Order | null>(null);
 
-  useEffect(() => {
-    const molliePaymentId = typeof window !== "undefined"
-      ? sessionStorage.getItem("molliePaymentId")
-      : null;
+  // useEffect(() => {
+  //   const molliePaymentId = typeof window !== "undefined"
+  //     ? sessionStorage.getItem("molliePaymentId")
+  //     : null;
 
-    const fetchOrder = async () => {
-      try {
-        if (!molliePaymentId) {
-          setOrder(null);
-          return;
-        }
+  //   const fetchOrder = async () => {
+  //     try {
+  //       if (!molliePaymentId) {
+  //         setOrder(null);
+  //         return;
+  //       }
 
-        const { data, error } = await supabase
-          .from("orders")
-          .select("id, email, first_name, last_name, total, status, created_at, payment_id")
-          .eq("payment_id", molliePaymentId)
-          .single();
+  //       const { data, error } = await supabase
+  //         .from("orders")
+  //         .select("id, email, first_name, last_name, total, status, created_at, payment_id")
+  //         .eq("payment_id", molliePaymentId)
+  //         .single();
 
-        if (!error && data) {
-          setOrder(data);
-          clearCart();
-        } else {
-          setOrder(null);
-        }
-      } catch (e) {
-        console.error("Success page error:", e);
-        setOrder(null);
-      } finally {
-        setLoading(false);
-        // Clean up session
-        // sessionStorage.removeItem("molliePaymentId");
-        // sessionStorage.removeItem("tempId");
-      }
-    };
+  //       if (!error && data) {
+  //         setOrder(data);
+  //         clearCart();
+  //       } else {
+  //         setOrder(null);
+  //       }
+  //     } catch (e) {
+  //       console.error("Success page error:", e);
+  //       setOrder(null);
+  //     } finally {
+  //       setLoading(false);
+  //       // Clean up session
+  //       // sessionStorage.removeItem("molliePaymentId");
+  //       // sessionStorage.removeItem("tempId");
+  //     }
+  //   };
 
-    fetchOrder();
-  }, [supabase, clearCart]);
+  //   fetchOrder();
+  // }, [supabase, clearCart]);
+useEffect(() => {
+  const molliePaymentId = sessionStorage.getItem("molliePaymentId");
+  const tempId = sessionStorage.getItem("tempId");
+
+  console.log("DEBUG: sessionStorage.molliePaymentId =", molliePaymentId);
+  console.log("DEBUG: sessionStorage.tempId =", tempId);
+  console.log("DEBUG: All sessionStorage =", { ...sessionStorage });
+
+  const fetchOrder = async () => {
+    if (!molliePaymentId) {
+      console.log("No molliePaymentId → fallback");
+      setOrder(null);
+      setLoading(false);
+      return;
+    }
+
+    console.log("Querying DB for payment_id =", molliePaymentId);
+
+    const { data, error } = await supabase
+      .from("orders")
+      .select("id, payment_id, total, email, first_name, last_name, status, created_at")
+      .eq("payment_id", molliePaymentId)
+      .single();
+
+    console.log("DB result:", { data, error });
+
+    if (data) {
+      // assert the row as Order so TypeScript knows all fields are present
+      setOrder(data as Order);
+      clearCart();
+    } else {
+      console.log("No order found → fallback");
+      setOrder(null);
+    }
+
+    setLoading(false);
+  };
+
+  fetchOrder();
+}, []);
 
   // Loading
   if (loading) {
