@@ -160,177 +160,300 @@
 //     return NextResponse.json({ error: message }, { status: 500 })
 //   }
 // }
+// import { NextResponse, type NextRequest } from "next/server";
+// import createMollieClient from "@mollie/api-client";
+// import { createClient } from "@/utils/supabase/server";
+
+// /* ---------- Helper Functions ---------- */
+// function isLocalhostOrigin(origin: string) {
+//   try {
+//     const url = new URL(origin);
+//     const host = url.hostname;
+//     return host === "localhost" || host === "127.0.0.1" || host.endsWith(".local");
+//   } catch {
+//     return true;
+//   }
+// }
+
+// function requirePublicHttps(urlString: string, label: string) {
+//   const url = new URL(urlString);
+//   const isHttps = url.protocol === "https:";
+//   const isLoopback =
+//     url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname.endsWith(".local");
+
+//   if (!isHttps || isLoopback) {
+//     throw new Error(`${label} must be a public HTTPS URL (got "${urlString}")`);
+//   }
+// }
+
+// function resolveBaseUrl(req: NextRequest) {
+//   const origin = req.nextUrl.origin;
+//   const envBase =
+//     process.env.MOLLIE_BASE_URL ||
+//     process.env.APP_BASE_URL ||
+//     process.env.NEXT_PUBLIC_APP_URL;
+
+//   if (isLocalhostOrigin(origin)) {
+//     if (!envBase) {
+//       throw new Error(
+//         "No public base URL configured. Set MOLLIE_BASE_URL (e.g. your ngrok/Cloudflare Tunnel or deployed domain)."
+//       );
+//     }
+//     requirePublicHttps(envBase, "MOLLIE_BASE_URL");
+//     return envBase.replace(/\/$/, "");
+//   }
+
+//   if (!origin.startsWith("https://")) {
+//     const httpsOrigin = origin.replace("http://", "https://");
+//     return httpsOrigin.replace(/\/$/, "");
+//   }
+
+//   return origin.replace(/\/$/, "");
+// }
+
+// function resolveUrls(req: NextRequest) {
+//   const base = resolveBaseUrl(req);
+
+//   const webhookUrl =
+//     process.env.MOLLIE_WEBHOOK_URL || `${base}/api/mollie/webhooks/mollie`;
+//   const redirectUrl =
+//     process.env.MOLLIE_REDIRECT_URL || `${base}/checkout/success`;
+
+//   requirePublicHttps(webhookUrl, "webhookUrl");
+//   requirePublicHttps(redirectUrl, "redirectUrl");
+
+//   return { base, webhookUrl, redirectUrl };
+// }
+
+// function getMollieClient() {
+//   const apiKey = process.env.MOLLIE_API_KEY;
+//   if (!apiKey) {
+//     throw new Error("Missing MOLLIE_API_KEY. Please add it to your environment variables.");
+//   }
+//   return createMollieClient({ apiKey });
+// }
+
+// /* ---------- Main Route ---------- */
+// export async function POST(req: NextRequest) {
+//   try {
+//     const supabase = createClient();
+//     const { orderData } = (await req.json()) as { orderData: any };
+
+//     const total = Number(orderData?.totals?.total ?? 0);
+//     if (!orderData?.email || !total || total <= 0) {
+//       return NextResponse.json({ error: "Invalid order data" }, { status: 400 });
+//     }
+
+//     const { webhookUrl, redirectUrl } = resolveUrls(req);
+
+//     // ✅ Step 1: Validate Mollie API key and attempt payment creation first
+//     let payment;
+//     try {
+//       const client = getMollieClient();
+//       payment = await client.payments.create({
+//         amount: {
+//           currency: "GBP",
+//           value: total.toFixed(2),
+//         },
+//         description: `Order for ${orderData.email}`,
+//         redirectUrl,
+//         webhookUrl,
+//         metadata: {
+//           email: orderData.email,
+//         },
+//       });
+//     } catch (mollieErr: any) {
+//       console.error("❌ Mollie payment creation failed:", mollieErr);
+//       const msg = mollieErr?.message || "Failed to create payment with Mollie. Check API key.";
+//       return NextResponse.json({ error: msg }, { status: 500 });
+//     }
+
+//     // ✅ Step 2: Only proceed if Mollie payment succeeded
+//     const redirectCheckout = (payment as any)?._links?.checkout?.href;
+//     if (!redirectCheckout) {
+//       return NextResponse.json(
+//         { error: "Failed to create Mollie checkout URL." },
+//         { status: 500 }
+//       );
+//     }
+
+//     // ✅ Step 3: Get logged-in user (guest checkout allowed)
+//     const { data: auth } = await (await supabase).auth.getUser();
+
+//     // ✅ Step 4: Insert order only after successful Mollie payment
+//     const { data: newOrder, error: insertErr } = await (await supabase)
+//       .from("orders")
+//       .insert({
+//         user_id: auth?.user?.id ?? null,
+//         email: orderData.email,
+//         first_name: orderData.firstName,
+//         last_name: orderData.lastName,
+//         phone: orderData.phone,
+//         shipping_address: orderData.shippingAddress,
+//         shipping_city: orderData.shippingCity,
+//         shipping_postcode: orderData.shippingPostcode,
+//         shipping_country: orderData.shippingCountry,
+//         billing_address: orderData.billingIsSame
+//           ? orderData.shippingAddress
+//           : orderData.billingAddress,
+//         billing_city: orderData.billingIsSame
+//           ? orderData.shippingCity
+//           : orderData.billingCity,
+//         billing_postcode: orderData.billingIsSame
+//           ? orderData.shippingPostcode
+//           : orderData.billingPostcode,
+//         billing_country: orderData.billingIsSame
+//           ? orderData.shippingCountry
+//           : orderData.billingCountry,
+//         payment_method: "mollie",
+//         delivery_method: orderData.deliveryMethod,
+//         special_instructions: orderData.specialInstructions,
+//         subtotal: Number(orderData.totals?.subtotal || 0),
+//         delivery_fee: Number(orderData.totals?.deliveryFee || 0),
+//         total,
+//         status: "pending", // safer until webhook confirms payment
+//         items: orderData.items || [],
+//         // stripe_session_id: payment.id,
+//       })
+//       .select()
+//       .single();
+
+//     if (insertErr) throw insertErr;
+
+//     // ✅ Step 5: Return redirect URL
+//     return NextResponse.json({
+//       redirectUrl: redirectCheckout,
+//       paymentId: payment.id,
+//       orderId: newOrder.id,
+//     });
+//   } catch (e: any) {
+//     console.error("💥 Mollie create-payment error:", e);
+//     return NextResponse.json(
+//       { error: e?.message || "Unexpected server error" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+// import { NextResponse, type NextRequest } from "next/server";
+// import createMollieClient from "@mollie/api-client";
+
+// /* ---------- Utility ---------- */
+// function resolveBaseUrl(req: NextRequest) {
+//   const origin = req.nextUrl.origin;
+//   const envBase = process.env.MOLLIE_BASE_URL;
+//   if (origin.includes("localhost") && envBase) return envBase;
+//   return origin;
+// }
+
+// /* ---------- Main Route ---------- */
+// export async function POST(req: NextRequest) {
+//   try {
+//     const mollie = createMollieClient({
+//       apiKey: process.env.MOLLIE_API_KEY!,
+//     });
+
+//     const { orderData } = await req.json();
+//     const total = Number(orderData?.totals?.total || 0);
+//     if (!orderData?.email || total <= 0) {
+//       return NextResponse.json({ error: "Invalid order data" }, { status: 400 });
+//     }
+
+//     const base = resolveBaseUrl(req);
+//     const webhookUrl = `${base}/api/mollie/webhooks/mollie`;
+//     const redirectUrl = `${base}/checkout/success`;
+
+//     // ✅ Only create Mollie payment, no DB insert
+//     const payment = await mollie.payments.create({
+//       amount: {
+//         currency: "GBP",
+//         value: total.toFixed(2),
+//       },
+//       description: `Order for ${orderData.email}`,
+//       redirectUrl,
+//       webhookUrl,
+//       metadata: { orderData }, // store everything for webhook
+//     });
+
+//     const redirectHref = payment?._links?.checkout?.href;
+//     if (!redirectHref) {
+//       console.error("Mollie payment did not include checkout URL", payment);
+//       return NextResponse.json({ error: "Failed to create Mollie checkout URL" }, { status: 500 });
+//     }
+
+//     return NextResponse.json({
+//       redirectUrl: redirectHref,
+//       paymentId: payment.id,
+//     });
+//   } catch (err: any) {
+//     console.error("❌ Mollie create-payment error:", err);
+//     return NextResponse.json({ error: err.message }, { status: 500 });
+//   }
+// }
+// app/api/mollie/create-payment/route.ts
 import { NextResponse, type NextRequest } from "next/server";
 import createMollieClient from "@mollie/api-client";
 import { createClient } from "@/utils/supabase/server";
 
-/* ---------- Helper Functions ---------- */
-function isLocalhostOrigin(origin: string) {
-  try {
-    const url = new URL(origin);
-    const host = url.hostname;
-    return host === "localhost" || host === "127.0.0.1" || host.endsWith(".local");
-  } catch {
-    return true;
-  }
-}
-
-function requirePublicHttps(urlString: string, label: string) {
-  const url = new URL(urlString);
-  const isHttps = url.protocol === "https:";
-  const isLoopback =
-    url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname.endsWith(".local");
-
-  if (!isHttps || isLoopback) {
-    throw new Error(`${label} must be a public HTTPS URL (got "${urlString}")`);
-  }
-}
-
 function resolveBaseUrl(req: NextRequest) {
   const origin = req.nextUrl.origin;
-  const envBase =
-    process.env.MOLLIE_BASE_URL ||
-    process.env.APP_BASE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL;
-
-  if (isLocalhostOrigin(origin)) {
-    if (!envBase) {
-      throw new Error(
-        "No public base URL configured. Set MOLLIE_BASE_URL (e.g. your ngrok/Cloudflare Tunnel or deployed domain)."
-      );
-    }
-    requirePublicHttps(envBase, "MOLLIE_BASE_URL");
-    return envBase.replace(/\/$/, "");
-  }
-
-  if (!origin.startsWith("https://")) {
-    const httpsOrigin = origin.replace("http://", "https://");
-    return httpsOrigin.replace(/\/$/, "");
-  }
-
-  return origin.replace(/\/$/, "");
+  const envBase = process.env.MOLLIE_BASE_URL;
+  if (origin.includes("localhost") && envBase) return envBase;
+  return origin;
 }
 
-function resolveUrls(req: NextRequest) {
-  const base = resolveBaseUrl(req);
-
-  const webhookUrl =
-    process.env.MOLLIE_WEBHOOK_URL || `${base}/api/mollie/webhooks/mollie`;
-  const redirectUrl =
-    process.env.MOLLIE_REDIRECT_URL || `${base}/checkout/success`;
-
-  requirePublicHttps(webhookUrl, "webhookUrl");
-  requirePublicHttps(redirectUrl, "redirectUrl");
-
-  return { base, webhookUrl, redirectUrl };
-}
-
-function getMollieClient() {
-  const apiKey = process.env.MOLLIE_API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing MOLLIE_API_KEY. Please add it to your environment variables.");
-  }
-  return createMollieClient({ apiKey });
-}
-
-/* ---------- Main Route ---------- */
 export async function POST(req: NextRequest) {
   try {
+    const { tempId, total, email } = await req.json();
+
+    if (!tempId || !email || total <= 0) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
     const supabase = createClient();
-    const { orderData } = (await req.json()) as { orderData: any };
 
-    const total = Number(orderData?.totals?.total ?? 0);
-    if (!orderData?.email || !total || total <= 0) {
-      return NextResponse.json({ error: "Invalid order data" }, { status: 400 });
-    }
-
-    const { webhookUrl, redirectUrl } = resolveUrls(req);
-
-    // ✅ Step 1: Validate Mollie API key and attempt payment creation first
-    let payment;
-    try {
-      const client = getMollieClient();
-      payment = await client.payments.create({
-        amount: {
-          currency: "GBP",
-          value: total.toFixed(2),
-        },
-        description: `Order for ${orderData.email}`,
-        redirectUrl,
-        webhookUrl,
-        metadata: {
-          email: orderData.email,
-        },
-      });
-    } catch (mollieErr: any) {
-      console.error("❌ Mollie payment creation failed:", mollieErr);
-      const msg = mollieErr?.message || "Failed to create payment with Mollie. Check API key.";
-      return NextResponse.json({ error: msg }, { status: 500 });
-    }
-
-    // ✅ Step 2: Only proceed if Mollie payment succeeded
-    const redirectCheckout = (payment as any)?._links?.checkout?.href;
-    if (!redirectCheckout) {
-      return NextResponse.json(
-        { error: "Failed to create Mollie checkout URL." },
-        { status: 500 }
-      );
-    }
-
-    // ✅ Step 3: Get logged-in user (guest checkout allowed)
-    const { data: auth } = await (await supabase).auth.getUser();
-
-    // ✅ Step 4: Insert order only after successful Mollie payment
-    const { data: newOrder, error: insertErr } = await (await supabase)
-      .from("orders")
-      .insert({
-        user_id: auth?.user?.id ?? null,
-        email: orderData.email,
-        first_name: orderData.firstName,
-        last_name: orderData.lastName,
-        phone: orderData.phone,
-        shipping_address: orderData.shippingAddress,
-        shipping_city: orderData.shippingCity,
-        shipping_postcode: orderData.shippingPostcode,
-        shipping_country: orderData.shippingCountry,
-        billing_address: orderData.billingIsSame
-          ? orderData.shippingAddress
-          : orderData.billingAddress,
-        billing_city: orderData.billingIsSame
-          ? orderData.shippingCity
-          : orderData.billingCity,
-        billing_postcode: orderData.billingIsSame
-          ? orderData.shippingPostcode
-          : orderData.billingPostcode,
-        billing_country: orderData.billingIsSame
-          ? orderData.shippingCountry
-          : orderData.billingCountry,
-        payment_method: "mollie",
-        delivery_method: orderData.deliveryMethod,
-        special_instructions: orderData.specialInstructions,
-        subtotal: Number(orderData.totals?.subtotal || 0),
-        delivery_fee: Number(orderData.totals?.deliveryFee || 0),
-        total,
-        status: "pending", // safer until webhook confirms payment
-        items: orderData.items || [],
-        // stripe_session_id: payment.id,
-      })
-      .select()
+    // Verify temp order exists
+    const { data: tempOrder, error } = await (await supabase)
+      .from("temp_pending_orders")
+      .select("id")
+      .eq("id", tempId)
       .single();
 
-    if (insertErr) throw insertErr;
+    if (error || !tempOrder) {
+      return NextResponse.json({ error: "Invalid or expired session" }, { status: 400 });
+    }
 
-    // ✅ Step 5: Return redirect URL
-    return NextResponse.json({
-      redirectUrl: redirectCheckout,
-      paymentId: payment.id,
-      orderId: newOrder.id,
+    const mollie = createMollieClient({ apiKey: process.env.MOLLIE_API_KEY! });
+    const base = resolveBaseUrl(req);
+
+    const payment = await mollie.payments.create({
+      amount: {
+        currency: "GBP",
+        value: total.toFixed(2),
+      },
+      description: `Order for ${email}`,
+      redirectUrl: `${base}/checkout/success`,
+      webhookUrl: `${base}/api/mollie/webhooks/mollie`,
+      metadata: { tempId }, // Only 36 chars!
     });
-  } catch (e: any) {
-    console.error("💥 Mollie create-payment error:", e);
-    return NextResponse.json(
-      { error: e?.message || "Unexpected server error" },
-      { status: 500 }
-    );
+
+    const redirectHref = payment._links?.checkout?.href;
+    if (!redirectHref) {
+      return NextResponse.json({ error: "Checkout URL missing" }, { status: 500 });
+    }
+
+    // Link payment to temp order
+    await (await supabase)
+      .from("temp_pending_orders")
+      .update({ payment_id: payment.id })
+      .eq("id", tempId);
+
+    return NextResponse.json({
+      redirectUrl: redirectHref,
+      paymentId: payment.id,
+    });
+  } catch (err: any) {
+    console.error("Mollie create-payment error:", err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
