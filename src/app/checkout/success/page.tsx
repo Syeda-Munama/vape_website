@@ -564,11 +564,6 @@ export default function CheckoutSuccessPage() {
             <Link href="/account/orders">View Orders</Link>
           </Button>
         </div>
-
-        {/* Footer Note */}
-        <p className="text-center text-sm text-gray-500 mt-8">
-          You will receive a confirmation email at <strong>{order.email}</strong>
-        </p>
       </div>
     </div>
   );
